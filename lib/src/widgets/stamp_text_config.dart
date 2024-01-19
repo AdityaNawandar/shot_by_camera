@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:photo_stamp/src/utils/app_constants.dart';
+import 'package:shotbycamera/src/utils/app_constants.dart';
 
-import 'package:photo_stamp/src/widgets/color_picker.dart';
+import 'package:shotbycamera/src/widgets/color_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/photo_provider.dart';

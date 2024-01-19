@@ -11,7 +11,7 @@ import 'package:media_scanner/media_scanner.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_stamp/src/utils/app_constants.dart';
+import 'package:shotbycamera/src/utils/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watcher/watcher.dart';
 import 'package:image/image.dart' as img;
@@ -213,13 +213,13 @@ Future<Offset> calculateOffsetBasedOnPosition(
         fontSize * 0.5; // Estimate average character width
     double textWidth = estimatedCharWidth * text.length; // Estimate text width
     double x = margin; // Default for left alignment
-    double subtrationFactor = fontSize * 2.5;
+    double subtrationFactor = fontSize * 2;
     double y = image.height - subtrationFactor; // Bottom position with margin
 
     if (position == TextPosition.bottomCenter) {
       x = (image.width / 2) - (textWidth / 2); // Center alignment
     } else if (position == TextPosition.bottomRight) {
-      x = image.width - textWidth - margin; // Right alignment
+      x = image.width - textWidth - 100; // Right alignment
     }
     // Clamp x value to ensure it's within the image boundaries
     x = x.clamp(0.0, image.width - textWidth);

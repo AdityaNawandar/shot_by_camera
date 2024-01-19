@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:photo_stamp/src/providers/photo_provider.dart';
-import 'package:photo_stamp/src/providers/stamp_text_provider.dart';
+import 'package:shotbycamera/src/providers/photo_provider.dart';
+import 'package:shotbycamera/src/providers/stamp_text_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/stamp_text_config.dart';

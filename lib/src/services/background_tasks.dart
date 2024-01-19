@@ -7,6 +7,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_editor/image_editor.dart' as img_editor;
+import 'package:media_scanner/media_scanner.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,6 +15,8 @@ import 'package:photo_stamp/src/utils/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watcher/watcher.dart';
 import 'package:image/image.dart' as img;
+
+import 'media_scanner.dart';
 
 ///
 Directory? photoDirectory = Directory(AppConstants.directoryPath);
@@ -44,32 +47,6 @@ Future<void> onStart(ServiceInstance service) async {
   service.on('stopService').listen((event) {
     service.stopSelf();
   });
-  // // Periodically check for new images to process
-  // Timer.periodic(const Duration(seconds: 1), (timer) async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final String? imagePath = prefs.getString('newImagePath');
-  //   if (imagePath != null) {
-  //     processImage(imagePath);
-  //     prefs.remove('newImagePath');
-  //   }
-  // Update foreground notification (only for Android)
-  // if (service is AndroidServiceInstance &&
-  //     await service.isForegroundService()) {
-  //   flutterLocalNotificationsPlugin.show(
-  //     notificationId,
-  //     'Image Stamping Service',
-  //     'Processing images in background',
-  //     NotificationDetails(
-  //       android: AndroidNotificationDetails(
-  //         notificationChannelId,
-  //         'IMAGE STAMPING SERVICE',
-  //         icon: 'ic_bg_service_small',
-  //         ongoing: true,
-  //       ),
-  //     ),
-  //   );
-  // }
-  // });
 }
 
 ///
@@ -144,6 +121,7 @@ Future<void> addStampToPhoto({
           textPosition,
           image,
           fontSize,
+          text,
         ),
         text: text,
         fontSizePx: fontSize,
@@ -183,6 +161,13 @@ Future<void> addStampToPhoto({
       print("Image processing failed or returned empty result");
     }
     print("Image stamped, saved at: ${stampedImage.path}");
+    MediaScanner.loadMedia(path: stampedImage.path);
+    // // To scan an entire directory
+    // await MediaScanner.scanDirectory(
+    //     '${AppConstants.appFolderPath}/${AppConstants.appFolderName}');
+    // // To scan a single file
+    // await MediaScanner.scanFile(stampedImage.path);
+    print('Media Scanned');
   } //
   catch (e) {
     print("Error in _addStampToPhoto: $e");
@@ -207,7 +192,7 @@ Future<String> getPhotoStampDirectoryPath() async {
       break;
     }
   }
-  newPath = "$newPath/Pictures/Photo_Stamp";
+  newPath = "$newPath/Pictures/${AppConstants.appFolderName}";
   // Check if the directory exists
   dir = Directory(newPath);
   if (!await dir.exists()) {
@@ -220,18 +205,24 @@ Future<String> getPhotoStampDirectoryPath() async {
 
 ///
 Future<Offset> calculateOffsetBasedOnPosition(
-    TextPosition position, File imageFile, int fontSize) async {
+    TextPosition position, File imageFile, int fontSize, String text) async {
   img.Image? image = img.decodeImage(await imageFile.readAsBytes());
   if (image != null) {
-    double x = 20; // Default for left alignment
+    double margin = 10; // Margin from edges
+    double estimatedCharWidth =
+        fontSize * 0.5; // Estimate average character width
+    double textWidth = estimatedCharWidth * text.length; // Estimate text width
+    double x = margin; // Default for left alignment
     double subtrationFactor = fontSize * 2.5;
     double y = image.height - subtrationFactor; // Bottom position with margin
+
     if (position == TextPosition.bottomCenter) {
-      x = (image.width / 2) - (fontSize * 2); // Adjust for center alignment
-    } //
-    else if (position == TextPosition.bottomRight) {
-      x = image.width - fontSize * 10; // Adjust for right alignment
+      x = (image.width / 2) - (textWidth / 2); // Center alignment
+    } else if (position == TextPosition.bottomRight) {
+      x = image.width - textWidth - margin; // Right alignment
     }
+    // Clamp x value to ensure it's within the image boundaries
+    x = x.clamp(0.0, image.width - textWidth);
     return Offset(x, y);
   } else {
     throw Exception('Unable to decode image');

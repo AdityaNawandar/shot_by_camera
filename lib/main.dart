@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,7 @@ bool arePermissionsGranted = false; // Declare the global variable
 void main() async {
   print("Main function started");
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
   // Retrieve the value from SharedPreferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
   arePermissionsGranted = prefs.getBool('permissionsGranted') ?? false;

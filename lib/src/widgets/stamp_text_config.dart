@@ -33,13 +33,17 @@ class StampTextConfig extends StatelessWidget {
     return //
         Column(
       children: [
-        Expanded(
-          child: FontSizeSelector(
-            onFontSizeSelected: (selectedFontSize) {
-              stampProvider.setFontSize(selectedFontSize);
-              photoProvider.updateFromStampTextProvider(stampProvider);
-              print("Selected font size: $selectedFontSize");
-            },
+        ListTile(
+          title: Text("Font Size"),
+          trailing: Container(
+            width: 48, // Define a suitable width
+            height: 48, // Define a suitable height
+            child: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                _showFontSizePicker(context, stampProvider, photoProvider);
+              },
+            ),
           ),
         ),
         ListTile(
@@ -98,4 +102,33 @@ class StampTextConfig extends StatelessWidget {
       },
     );
   }
+
+  void _showFontSizePicker(
+    BuildContext context,
+    StampTextProvider stampTextProvider,
+    PhotoProvider photoProvider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Choose Font Size"),
+          content: Container(
+            width: double.maxFinite, // Width of the AlertDialog
+            height: 300, // Set a fixed height for the ListView
+            child: FontSizeSelector(
+              onFontSizeSelected: (selectedFontSize) {
+                stampTextProvider.setFontSize(selectedFontSize);
+                photoProvider.updateFromStampTextProvider(stampTextProvider);
+                print("Selected font size: $selectedFontSize");
+                Navigator.of(dialogContext).pop(); // Close the dialog
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  ///
 }

@@ -8,7 +8,7 @@
 PRODUCT_NAME = photo_stamp
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.photoStamp
+PRODUCT_BUNDLE_IDENTIFIER = com.adityanawandar.shotbycamera
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.

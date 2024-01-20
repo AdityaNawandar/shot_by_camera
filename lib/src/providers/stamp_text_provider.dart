@@ -16,7 +16,7 @@ class StampTextProvider extends ChangeNotifier {
   TextPosition get textPosition => _textPosition;
   String get text => _text;
 
-  // Setter methods
+  // Setter methodsc
   void setFontSize(int newSize) {
     _fontSize = newSize;
     saveUserPreferences();

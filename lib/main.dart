@@ -14,6 +14,7 @@ void main() async {
   print("Main function started");
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
   // Retrieve the value from SharedPreferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
   arePermissionsGranted = prefs.getBool('permissionsGranted') ?? false;

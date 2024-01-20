@@ -246,7 +246,8 @@ void initializePhotoWatcher() async {
         watcher.events.listen((event) {
           print("Event detected: ${event.toString()}");
           if (event.type == ChangeType.ADD &&
-              !event.path.contains("stamped_")) {
+              !event.path.contains("stamped_") &&
+              !event.path.contains(".pending")) {
             print("Scheduling processing for file: ${event.path}");
             final service = FlutterBackgroundService();
             service.invoke('processImage', {'imagePath': event.path});

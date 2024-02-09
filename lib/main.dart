@@ -27,7 +27,7 @@ void main() async {
           create: (context) => PhotoProvider(),
         ),
         ChangeNotifierProvider<StampTextProvider>(
-          create: (context) => StampTextProvider(),
+          create: (context) => StampTextProvider(prefs),
         ),
       ],
       child: //

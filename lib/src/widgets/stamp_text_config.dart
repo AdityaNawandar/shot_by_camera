@@ -26,8 +26,14 @@ class StampTextConfig extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ///
-    final stampProvider = Provider.of<StampTextProvider>(context);
     final photoProvider = Provider.of<PhotoProvider>(context);
+    final stampProvider = Provider.of<StampTextProvider>(context);
+    final dropdownItems = TextPosition.values.map((TextPosition position) {
+      return DropdownMenuItem(
+        value: position,
+        child: Text(stampProvider.formattedTextPositions[position] ?? ''),
+      );
+    }).toList();
 
     ///
     return //
@@ -51,7 +57,6 @@ class StampTextConfig extends StatelessWidget {
           trailing: GestureDetector(
             onTap: () {
               _showColorPicker(context);
-              photoProvider.updateFromStampTextProvider(stampProvider);
             },
             child: CircleAvatar(backgroundColor: stampProvider.fontColor),
           ),
@@ -67,15 +72,9 @@ class StampTextConfig extends StatelessWidget {
                 if (newValue != null) {
                   // Update the provider or state here
                   stampProvider.setTextPosition(newValue);
-                  photoProvider.updateFromStampTextProvider(stampProvider);
                 }
               },
-              items: TextPosition.values.map((TextPosition position) {
-                return DropdownMenuItem<TextPosition>(
-                  value: position,
-                  child: Text(stampProvider.formatTextPosition(position)),
-                );
-              }).toList(),
+              items: dropdownItems, // Use the pre-defined dropdownItems here
               icon: const Icon(Icons.arrow_drop_down),
             ),
           ),
@@ -119,7 +118,7 @@ class StampTextConfig extends StatelessWidget {
             child: FontSizeSelector(
               onFontSizeSelected: (selectedFontSize) {
                 stampTextProvider.setFontSize(selectedFontSize);
-                photoProvider.updateFromStampTextProvider(stampTextProvider);
+
                 print("Selected font size: $selectedFontSize");
                 Navigator.of(dialogContext).pop(); // Close the dialog
               },

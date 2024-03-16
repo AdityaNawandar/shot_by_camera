@@ -5,7 +5,6 @@ import 'package:shotbycamera/src/widgets/color_picker.dart';
 import 'package:shotbycamera/src/widgets/font_family_selector_widget.dart';
 import 'package:shotbycamera/src/widgets/font_size_selector_widget.dart';
 import 'package:shotbycamera/src/widgets/text_position_selector.dart';
-
 import '../providers/stamp_text_provider.dart';
 import 'title_text_widget.dart';
 

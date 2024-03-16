@@ -21,7 +21,6 @@ import '../../main.dart';
 
 ///
 Directory? photoDirectory = Directory(AppConstants.defaultDirectoryPath);
-final Set<String> _processedFiles = {};
 // Constants
 const notificationChannelId = 'image_processing_channel';
 const notificationId = 888;
@@ -213,61 +212,6 @@ Future<void> onStart(ServiceInstance service) async {
     print('Error in onStart ${e.toString()}');
   }
 }
-
-// @pragma('vm:entry-point')
-// Future<void> onStart(ServiceInstance service) async {
-//   SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
-//   bool arePermissionsGranted =
-//       _sharedPreferences.getBool('permissionsGranted') ?? false;
-//   if (arePermissionsGranted && photoDirectory != null) {
-//     final watcher = DirectoryWatcher(photoDirectory!.path);
-//     watcher.events.listen((event) async {
-//       if (event.type == ChangeType.ADD &&
-//           !event.path.contains('.pending') &&
-//           !_processedFiles.contains(event.path)) {
-//         _processedFiles.add(event.path);
-//         print("Processing started for: ${event.path}");
-
-//         /// Retrieve user preferences
-//         // font size
-//         int fontSize = _sharedPreferences.getInt('fontSize') ??
-//             AppConstants.defaultFontSize;
-//         int scaledFontSize = fontSize * 8;
-//         // font family
-//         String fontName = _sharedPreferences.getString('fontName') ??
-//             AppConstants.defaultFontName;
-//         // font color
-//         Color fontColor = _getFontColorFromString(_sharedPreferences);
-//         // text position
-//         String textPositionString =
-//             _sharedPreferences.getString('textPlacement') ??
-//                 AppConstants.defaultTextPosition.name;
-//         TextPosition textPosition = TextPosition.values.firstWhere(
-//             (e) => e.name == textPositionString,
-//             orElse: () =>
-//                 AppConstants.defaultTextPosition // Default value if not found
-//             );
-//         // text
-//         String text =
-//             _sharedPreferences.getString('text') ?? AppConstants.defaultText;
-//         //
-//         await processImage(
-//           imagePath: event.path,
-//           fontSize: scaledFontSize,
-//           fontName: fontName,
-//           fontColor: fontColor,
-//           textPosition: textPosition,
-//           text: text,
-//         );
-//       }
-//     });
-//   } else {
-//     print("Permissions not granted or directory is not available.");
-//   }
-//   service.on('stopService').listen((event) {
-//     service.stopSelf();
-//   });
-// }
 
 ///
 Future<void> processImage(

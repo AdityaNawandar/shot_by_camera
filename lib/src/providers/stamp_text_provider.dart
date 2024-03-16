@@ -41,30 +41,6 @@ class StampTextProvider extends ChangeNotifier with WidgetsBindingObserver {
     _precomputeFormattedTextPositions();
   }
 //---------------------------------------------------------------------------------------------------------
-  // ///
-  // Future<void> loadUserDefaultValues() async {
-  //   // Text
-  //   // _text = await _prefs.getString('text') ?? AppConstants.defaultText;
-  //   // textController.text = _text;
-  //   // // Font Size
-  //   // _fontSize = await _prefs.getInt('fontSize') ?? AppConstants.defaultFontSize;
-  //   // // Font Color
-  //   // String? fontColorString = await _prefs.getString('fontColor');
-  //   // _fontColor = fontColorString != null
-  //   //     ? _getFontColorFromString(fontColorString)
-  //   //     : AppConstants.defaultFontColor;
-  //   // // Font Name
-  //   // _currentFont =
-  //   //     await _prefs.getString('fontName') ?? AppConstants.defaultFontName;
-  //   // // Text Position
-  //   // String textPositionString = await _prefs.getString('textPlacement') ??
-  //   //     AppConstants.defaultTextPosition.name;
-  //   // _textPosition = TextPosition.values.firstWhere(
-  //   //     (e) => e.name == textPositionString,
-  //   //     orElse: () => AppConstants.defaultTextPosition);
-  //   // //
-  //   // notifyListeners();
-  // }
 
   ///
   Future<void> _initAsync() async {
@@ -172,29 +148,6 @@ class StampTextProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   ///
-  Color _getFontColorFromString(String fontColorString) {
-    // Implement the logic to convert color string to Color object
-    // Remove any '#' symbol if present
-    fontColorString = fontColorString.replaceAll('#', '');
-
-    // Check if the string length is 6 (without alpha) or 8 (with alpha)
-    if (fontColorString.length == 6 || fontColorString.length == 8) {
-      // Add 'FF' as alpha if it's not present
-      if (fontColorString.length == 6) {
-        fontColorString = 'FF$fontColorString';
-      }
-
-      // Parse the hex color string
-      Color fontColor = Color(int.parse(fontColorString, radix: 16));
-      return fontColor;
-    } //
-    else {
-      // Handle the case where the format is invalid
-      return Color(int.parse(
-          AppConstants.defaultFontColorHex.replaceAll('0x', ''),
-          radix: 16));
-    }
-  }
 
   /// CLASS
 }

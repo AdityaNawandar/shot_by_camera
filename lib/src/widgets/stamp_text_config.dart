@@ -1,131 +1,109 @@
 import 'package:flutter/material.dart';
-import 'package:shotbycamera/src/utils/app_constants.dart';
-
-import 'package:shotbycamera/src/widgets/color_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shotbycamera/src/utils/app_constants.dart';
+import 'package:shotbycamera/src/widgets/color_picker.dart';
+import 'package:shotbycamera/src/widgets/font_family_selector_widget.dart';
+import 'package:shotbycamera/src/widgets/font_size_selector_widget.dart';
+import 'package:shotbycamera/src/widgets/text_position_selector.dart';
 
-import '../providers/photo_provider.dart';
 import '../providers/stamp_text_provider.dart';
-import 'font_size_selector.dart';
+import 'title_text_widget.dart';
 
 class StampTextConfig extends StatelessWidget {
-  ///
   final void Function(Color) onColorSelect;
   final void Function(int) onFontSizeChange;
-  final void Function(TextPosition?) onPositionSelect;
+  final void Function(TextPosition) onTextPositionSelect;
+  final void Function(String) onTextSubmit;
 
   ///
-  StampTextConfig({
+  const StampTextConfig({
     required this.onColorSelect,
     required this.onFontSizeChange,
-    required this.onPositionSelect,
-    super.key,
-  });
+    required this.onTextPositionSelect,
+    required this.onTextSubmit,
+    Key? key,
+  }) : super(key: key);
 
-  ///
   @override
   Widget build(BuildContext context) {
-    ///
-    final photoProvider = Provider.of<PhotoProvider>(context);
-    final stampProvider = Provider.of<StampTextProvider>(context);
-    final dropdownItems = TextPosition.values.map((TextPosition position) {
-      return DropdownMenuItem(
-        value: position,
-        child: Text(stampProvider.formattedTextPositions[position] ?? ''),
-      );
-    }).toList();
-
-    ///
-    return //
-        Column(
-      children: [
-        ListTile(
-          title: Text("Font Size"),
-          trailing: Container(
-            width: 48, // Define a suitable width
-            height: 48, // Define a suitable height
-            child: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                _showFontSizePicker(context, stampProvider, photoProvider);
-              },
-            ),
-          ),
-        ),
-        ListTile(
-          title: Text("Font Color"),
-          trailing: GestureDetector(
-            onTap: () {
-              _showColorPicker(context);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text Input
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return TitleTextInputWidget(
+                initialText: provider.text,
+                onTextSubmit: provider.setText,
+              );
             },
-            child: CircleAvatar(backgroundColor: stampProvider.fontColor),
           ),
-        ),
+          const SizedBox(height: 16),
 
-        // Text Position Selector
-        ListTile(
-          title: Text('Text Position'),
-          trailing: DropdownButtonHideUnderline(
-            child: DropdownButton(
-              value: stampProvider.textPosition,
-              onChanged: (TextPosition? newValue) {
-                if (newValue != null) {
-                  // Update the provider or state here
-                  stampProvider.setTextPosition(newValue);
-                }
-              },
-              items: dropdownItems, // Use the pre-defined dropdownItems here
-              icon: const Icon(Icons.arrow_drop_down),
-            ),
+          // Font Size Selector - Assuming changes affect the provider
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return FontSizeSelectorWidget(
+                selectedFontSize: provider.fontSize,
+                onFontSizeSelected: provider.setFontSize,
+              );
+            },
           ),
-        ),
-      ],
-    );
-  }
+          const SizedBox(height: 16),
 
-  void _showColorPicker(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        // 'dialogContext' is the context for the dialog
-        return AlertDialog(
-          title: const Text("Pick a color"),
-          content: SingleChildScrollView(
-            child: ColorPicker(onColorSelect: (Color color) {
-              onColorSelect(color);
-              Navigator.of(dialogContext)
-                  .pop(); // Close the dialog using 'dialogContext'
-            }),
+          // Font Family Selector - Assuming it affects the provider
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return FontFamilySelectorWidget(
+                onFontFamilySelected: provider.setFont,
+              );
+            },
           ),
-        );
-      },
-    );
-  }
+          const SizedBox(height: 16),
 
-  void _showFontSizePicker(
-    BuildContext context,
-    StampTextProvider stampTextProvider,
-    PhotoProvider photoProvider,
-  ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text("Choose Font Size"),
-          content: Container(
-            width: double.maxFinite, // Width of the AlertDialog
-            height: 300, // Set a fixed height for the ListView
-            child: FontSizeSelector(
-              onFontSizeSelected: (selectedFontSize) {
-                stampTextProvider.setFontSize(selectedFontSize);
-
-                print("Selected font size: $selectedFontSize");
-                Navigator.of(dialogContext).pop(); // Close the dialog
-              },
-            ),
+          // Color Picker - Assuming changes affect the provider
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return ColorPickerWidget(
+                onColorSelect: provider.setFontColor,
+              );
+            },
           ),
-        );
-      },
+          const SizedBox(height: 16),
+
+          // Text Position Selector - Assuming changes affect the provider
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return TextPositionSelectorWidget(
+                selectedTextPosition: provider.textPosition,
+                onTextPositionSelect: provider.setTextPosition,
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Done Button
+          Consumer<StampTextProvider>(
+            builder: (context, provider, child) {
+              return Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () => onTextSubmit(
+                    provider.textController?.text ?? AppConstants.defaultText,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black.withOpacity(0.8),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Done'),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 

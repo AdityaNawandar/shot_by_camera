@@ -24,16 +24,16 @@ class HomeScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: StampTextConfig(
             onColorSelect: (color) {
-              stampProvider.setFontColor(color);
+              stampProvider.fontColor = color;
             },
             onFontSizeChange: (size) {
-              stampProvider.setFontSize(size);
+              stampProvider.fontSize = size;
             },
             onTextPositionSelect: (position) {
-              stampProvider.setTextPosition(position);
-                        },
+              stampProvider.textPosition = position;
+            },
             onTextSubmit: (newText) {
-              stampProvider.setText(newText);
+              stampProvider.text = newText;
             },
           ),
         ),

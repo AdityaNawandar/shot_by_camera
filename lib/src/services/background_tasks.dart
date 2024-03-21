@@ -18,6 +18,8 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../../main.dart';
+import '../utils/utilities.dart';
+import 'preferences_manager.dart';
 
 ///
 Directory? photoDirectory = Directory(AppConstants.defaultDirectoryPath);
@@ -71,7 +73,7 @@ void initializePhotoWatcher() async {
     // Initialize SharedPreferences
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
-    // Retrieve the value from SharedPreferences
+    // Check if permissions are granted
     bool arePermissionsGranted =
         preferences.getBool('permissionsGranted') ?? false;
 
@@ -90,36 +92,30 @@ void initializePhotoWatcher() async {
             // Check if the file is already being processed before starting the timer
             if (!processedFiles.contains(file.path)) {
               // Debounce mechanism
-              Timer(Duration(seconds: 2), () async {
+              Timer(const Duration(seconds: 2), () async {
                 if (await file.exists() &&
                     !processedFiles.contains(file.path)) {
                   processedFiles.add(file.path);
                   print("Processing file: ${file.path}");
 
-                  /// Retrieve user preferences
-                  // font size
-                  int fontSize = preferences.getInt('fontSize') ??
-                      AppConstants.defaultFontSize;
+                  /// RETRIEVE USER PREFERENCES
+                  PreferencesManager prefsManager = PreferencesManager.instance;
+
+                  // Font size
+                  int fontSize = await prefsManager.getFontSize();
                   int scaledFontSize = fontSize * 8;
-                  // font family
-                  String fontName = preferences.getString('fontName') ??
-                      AppConstants.defaultFontName;
-                  // font color
-                  Color fontColor = _getFontColorFromString(preferences);
-                  String hexColor = colorToHex(fontColor);
-                  // text position
-                  String textPositionString =
-                      preferences.getString('textPlacement') ??
-                          AppConstants.defaultTextPosition.name;
-                  TextPosition textPosition = TextPosition.values.firstWhere(
-                      (e) => e.name == textPositionString,
-                      orElse: () => AppConstants
-                          .defaultTextPosition // Default value if not found
-                      );
-                  // text
-                  String text =
-                      preferences.getString('text') ?? AppConstants.defaultText;
-                  //--------------------PROCESS----------------------//
+                  // Font family
+                  String fontName = await prefsManager.getFontName();
+                  // Font color
+                  Color fontColor = await prefsManager.getFontColor();
+                  String hexColor = colorToHexString(fontColor);
+                  // Text position
+                  TextPosition textPosition =
+                      await prefsManager.getTextPosition();
+                  // Text
+                  String text = await prefsManager.getText();
+
+                  //--------------------PROCESS IMAGE----------------------//
                   // Proceed with processing
                   print("Processing file: ${file.path}");
                   final service = FlutterBackgroundService();
@@ -179,7 +175,7 @@ Future<void> onStart(ServiceInstance service) async {
         final fontName = data?['fontName'];
         final String? fontColorHex = data?['fontColor'];
         final String text = data?['text'];
-        final Color fontColor = _convertStringToColor(fontColorHex);
+        final Color fontColor = getColorFromString(fontColorHex);
         final String textPositionString = data?['textPosition'];
         // Convert the string to the TextPosition enum
         final TextPosition textPosition =
@@ -320,7 +316,6 @@ Future<bool> requestPermissions() async {
     Permission.manageExternalStorage,
     // Add other permissions here
   ];
-
   try {
     Map<Permission, PermissionStatus> permissionStatuses =
         await permissionsToRequest.request();
@@ -341,7 +336,7 @@ Future<bool> requestPermissions() async {
   } //
   catch (e) {
     print('Exception in requestPermissions: ${e.toString()}');
-    return false; // Return false in case of an exception
+    return false;
   }
 }
 
@@ -390,101 +385,40 @@ Future<String> getFontFilePath(String assetPath) async {
 }
 
 ///
-String colorToHex(Color color) {
-  return '#${color.value.toRadixString(16).padLeft(8, '0')}';
-}
-
-///
-Color _getFontColorFromString(SharedPreferences prefs) {
-  try {
-    String fontColorString =
-        prefs.getString('fontColor') ?? AppConstants.defaultFontColorHex;
-
-    // Remove any '#' symbol if present
-    fontColorString = fontColorString.replaceAll('#', '');
-
-    // Check if the string length is 6 (without alpha) or 8 (with alpha)
-    if (fontColorString.length == 6 || fontColorString.length == 8) {
-      // Add 'FF' as alpha if it's not present
-      if (fontColorString.length == 6) {
-        fontColorString = 'FF$fontColorString';
-      }
-
-      // Parse the hex color string
-      Color fontColor = Color(int.parse(fontColorString, radix: 16));
-      return fontColor;
-    } //
-    else {
-      // Handle the case where the format is invalid
-      return Color(
-        int.parse(AppConstants.defaultFontColorHex.replaceAll('0x', ''),
-            radix: 16),
-      );
-    }
-  } //
-  catch (e) {
-    print(e.toString());
-    return Color(int.parse(
-        AppConstants.defaultFontColorHex.replaceAll('0x', ''),
-        radix: 16));
-  }
-}
-
-///
-Color _convertStringToColor(String? fontColorHex) {
-  Color fontColor = AppConstants.defaultFontColor;
-  // Check if the string is not null or empty
-  if (fontColorHex != null && fontColorHex.isNotEmpty) {
-    // Convert the hex string to an integer.
-    // The string might start with '#' which should be removed before parsing.
-    final String hexValue =
-        fontColorHex.startsWith('#') ? fontColorHex.substring(1) : fontColorHex;
-    final int fontColorValue = int.parse(hexValue, radix: 16);
-    // If your hex string doesn't include alpha value (transparency), you might want to add it.
-    // For full opacity, you can use `0xFF` as the high-order bits:
-    final int fullOpacityColorValue = 0xFF000000 | fontColorValue;
-    // Now you can use this integer to create a Color object, if needed:
-    fontColor = Color(fullOpacityColorValue);
-  }
-  return fontColor;
-}
-
-///
 Future<Offset> calculateOffsetBasedOnPosition(
     TextPosition position, File imageFile, int fontSize, String text) async {
   try {
     img.Image? image = img.decodeImage(await imageFile.readAsBytes());
     if (image != null) {
       // Calculate margin as a percentage of the image width, for example, 5%
-      double marginPercentage = 0.03; // Adjust this value as needed
-      double margin =
-          image.width * marginPercentage; // Dynamic margin based on image width
-
-      double estimatedCharWidth =
-          fontSize * 0.44; // Estimate average character width
-      double textWidth =
-          estimatedCharWidth * text.length; // Estimate text width
-
+      // Adjust this value as needed
+      double marginPercentage = 0.03;
+      // Dynamic margin based on image width
+      double margin = image.width * marginPercentage;
+      // Estimate average character width
+      double estimatedCharWidth = fontSize * 0.45;
+      // Estimate text width
+      double textWidth = estimatedCharWidth * text.length;
       // Default for left alignment
       double x = margin;
-
-      double subtractionFactor = fontSize * 2;
+      double subtractionFactor = fontSize * 1.5;
       // Bottom position with margin
       double y = image.height - subtractionFactor;
 
       if (position == TextPosition.bottomCenter) {
-        x = (image.width / 2) - (textWidth / 2); // Center alignment
-      } else if (position == TextPosition.bottomRight) {
+        x = (image.width / 2) - (textWidth / 1.8); // Center alignment
+      } //
+      else if (position == TextPosition.bottomRight) {
         x = image.width -
             textWidth -
-            margin * 1; // Right alignment, also consider margin
+            margin * 3; // Right alignment, also consider margin
       }
-
       // Clamp x value to ensure it's within the image boundaries
       x = x.clamp(0.0, image.width.toDouble() - textWidth);
       print('Text position: $position, Offset: ($x, $y)');
       return Offset(x, y);
-    } else {
+    } //
+    else {
       throw Exception('Unable to decode image');
     }
   } //
@@ -517,7 +451,6 @@ Future<String> getPhotoStampDirectoryPath() async {
   dir = Directory(newPath);
   if (!await dir.exists()) {
     // If the directory does not exist, create it
-    // await requestPermissions();
     await dir.create(recursive: true);
   }
   return newPath;

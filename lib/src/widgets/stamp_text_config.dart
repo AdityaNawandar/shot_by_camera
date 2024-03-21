@@ -35,7 +35,9 @@ class StampTextConfig extends StatelessWidget {
             builder: (context, provider, child) {
               return TitleTextInputWidget(
                 initialText: provider.text,
-                onTextSubmit: provider.setText,
+                onTextSubmit: (String newText) {
+                  provider.text = newText;
+                },
               );
             },
           ),
@@ -46,7 +48,9 @@ class StampTextConfig extends StatelessWidget {
             builder: (context, provider, child) {
               return FontSizeSelectorWidget(
                 selectedFontSize: provider.fontSize,
-                onFontSizeSelected: provider.setFontSize,
+                onFontSizeSelected: (newValue) {
+                  provider.fontSize = newValue;
+                },
               );
             },
           ),
@@ -56,7 +60,9 @@ class StampTextConfig extends StatelessWidget {
           Consumer<StampTextProvider>(
             builder: (context, provider, child) {
               return FontFamilySelectorWidget(
-                onFontFamilySelected: provider.setFont,
+                onFontFamilySelected: (newValue) {
+                  provider.fontName = newValue;
+                },
               );
             },
           ),
@@ -65,9 +71,9 @@ class StampTextConfig extends StatelessWidget {
           // Color Picker - Assuming changes affect the provider
           Consumer<StampTextProvider>(
             builder: (context, provider, child) {
-              return ColorPickerWidget(
-                onColorSelect: provider.setFontColor,
-              );
+              return ColorPickerWidget(onColorSelect: (newValue) {
+                provider.fontColor = newValue;
+              });
             },
           ),
           const SizedBox(height: 16),
@@ -77,7 +83,9 @@ class StampTextConfig extends StatelessWidget {
             builder: (context, provider, child) {
               return TextPositionSelectorWidget(
                 selectedTextPosition: provider.textPosition,
-                onTextPositionSelect: provider.setTextPosition,
+                onTextPositionSelect: (newValue) {
+                  provider.textPosition = newValue;
+                },
               );
             },
           ),
@@ -89,9 +97,12 @@ class StampTextConfig extends StatelessWidget {
               return Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                  onPressed: () => onTextSubmit(
-                    provider.textController?.text ?? AppConstants.defaultText,
-                  ),
+                  onPressed: () {
+                    provider.text = provider.textController.text;
+                  },
+                  // onPressed: () => onTextSubmit(
+                  //   provider.textController?.text ?? AppConstants.defaultText,
+                  // ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black.withOpacity(0.8),
                     foregroundColor: Colors.white,

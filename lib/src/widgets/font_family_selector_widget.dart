@@ -44,12 +44,12 @@ class FontFamilySelectorWidget extends StatelessWidget {
                 child: DropdownButton<String>(
                   isExpanded:
                       true, // Make the dropdown button expand to fill the container
-                  value: provider.currentFont,
+                  value: provider.fontName,
                   icon: const Icon(Icons.arrow_downward, color: Colors.white),
                   elevation: 16,
                   style: const TextStyle(color: Colors.black, fontSize: 20),
                   onChanged: (String? newValue) {
-                    provider.setFont(newValue!);
+                    provider.fontName = newValue!;
                   },
                   items: AppConstants.availableFonts
                       .map<DropdownMenuItem<String>>((String value) {

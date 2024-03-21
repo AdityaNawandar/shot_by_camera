@@ -27,6 +27,13 @@ class AppConstants {
     20: 'L', // Large
     24: 'XL', // Extra Large
   };
+
+  /// STRINGS
+  static const String fontNameKey = 'fontName';
+  static const String fontColorHexStringKey = 'fontColorHexString';
+  static const String textPositionStringKey = 'textPositionString';
+  static const String stampTextKey = 'stampText';
+  static const String fontSizeKey = 'fontSize';
 }
 
 enum TextPosition { bottomLeft, bottomCenter, bottomRight }

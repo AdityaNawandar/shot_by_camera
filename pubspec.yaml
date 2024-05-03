@@ -1,5 +1,5 @@
-name: shotbycamera
-description: ShotBy Camera
+name: ShotByCameraVersion
+description: Shot By (camera version)
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -55,6 +55,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: "^0.13.1"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: 'assets/icons/app_icon.png'
+  min_sdk_android: 21 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -77,7 +84,7 @@ flutter:
   assets:
     # - images/a_dot_burr.jpeg
     - assets/icons/notification_icon.png
-
+    - assets/icons/app_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
@@ -94,10 +101,10 @@ flutter:
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto/Roboto-Regular.ttf
-    - family: DancingScript
+    - family: Dancing Script Regular
       fonts:
         - asset: assets/fonts/Dancing_Script/DancingScript-VariableFont_wght.ttf
-    - family: Exo2
+    - family: Exo 2 Italic
       fonts:
         - asset: assets/fonts/Exo_2/Exo2-Italic-VariableFont_wght.ttf
     # - family: Lato

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shotbycamera/src/providers/stamp_text_provider.dart';
 import 'package:provider/provider.dart';
-
+import '../../providers/stamp_text_provider.dart';
 import '../../widgets/stamp_text_config.dart';
 
 class HomeScreen extends StatelessWidget {

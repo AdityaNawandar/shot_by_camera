@@ -10,14 +10,11 @@ import 'package:media_scanner/media_scanner.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shotbycamera/src/providers/stamp_text_provider.dart';
-import 'package:shotbycamera/src/utils/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watcher/watcher.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
-
-import '../../main.dart';
+import '../utils/app_constants.dart';
 import '../utils/utilities.dart';
 import 'preferences_manager.dart';
 
@@ -103,6 +100,7 @@ void initializePhotoWatcher() async {
 
                   // Font size
                   int fontSize = await prefsManager.getFontSize();
+                  // int scaledFontSize = fontSize;
                   int scaledFontSize = fontSize * 8;
                   // Font family
                   String fontName = await prefsManager.getFontName();
@@ -152,8 +150,8 @@ void initializePhotoWatcher() async {
       if (permissionsGranted) {
         // Permissions were granted, continue with initialization
         photoDirectory = Directory(AppConstants.defaultDirectoryPath);
-        // Rest of the code...
-      } else {
+      } //
+      else {
         // Permissions were not granted, handle accordingly
         print("Need more permissions.");
       }
@@ -172,7 +170,7 @@ Future<void> onStart(ServiceInstance service) async {
       service.on('processImage').listen((data) {
         final String imagePath = data?['imagePath'];
         final int fontSize = data?['fontSize'];
-        final fontName = data?['fontName'];
+        final String fontName = data?['fontName'];
         final String? fontColorHex = data?['fontColor'];
         final String text = data?['text'];
         final Color fontColor = getColorFromString(fontColorHex);
@@ -220,7 +218,10 @@ Future<void> processImage(
 ) async {
   try {
     final File imageFile = File(imagePath);
-    if (await imageFile.exists() && !imageFile.path.contains('.pending-')) {
+    if (await imageFile.exists() &&
+            !imageFile.path.contains('.pending-') &&
+            !imageFile.path.contains('stamped') //
+        ) {
       await addStampToPhoto(
         image: imageFile,
         fontSize: fontSize,
@@ -230,7 +231,7 @@ Future<void> processImage(
         textPosition: textPosition,
         photoDirectoryPath: AppConstants.defaultDirectoryPath,
       );
-      print('ADDING STAMP...');
+      print('ADDED STAMP...');
     } else {
       print('File does not exist or is a temporary file: $imagePath');
     }
@@ -264,6 +265,7 @@ Future<void> addStampToPhoto({
           image,
           fontSize,
           text,
+          fontName,
         ),
         text: text,
         fontSizePx: fontSize,
@@ -347,11 +349,11 @@ Future<String> registerSelectedFont(String userSelectedFontFamily) async {
   String assetPath;
   try {
     switch (userSelectedFontFamily) {
-      case 'DancingScript':
+      case 'Dancing Script Regular':
         assetPath =
             'assets/fonts/Dancing_Script/DancingScript-VariableFont_wght.ttf';
         break;
-      case 'Exo2':
+      case 'Exo 2 Italic':
         assetPath = 'assets/fonts/Exo_2/Exo2-Italic-VariableFont_wght.ttf';
         break;
       // Add more cases as needed
@@ -385,45 +387,46 @@ Future<String> getFontFilePath(String assetPath) async {
 }
 
 ///
-Future<Offset> calculateOffsetBasedOnPosition(
-    TextPosition position, File imageFile, int fontSize, String text) async {
+double getAdjustmentFactor(String fontFamily) {
+  // Return a factor based on empirical testing of different fonts
+  switch (fontFamily) {
+    case 'Dancing Script Regular':
+      return 0.9;
+    case 'Exo 2 Italic':
+      return 1.1;
+    default:
+      return 1.0;
+  }
+}
+
+///
+Future<Offset> calculateOffsetBasedOnPosition(TextPosition position,
+    File imageFile, int fontSize, String text, String fontFamily) async {
   try {
     img.Image? image = img.decodeImage(await imageFile.readAsBytes());
-    if (image != null) {
-      // Calculate margin as a percentage of the image width, for example, 5%
-      // Adjust this value as needed
-      double marginPercentage = 0.03;
-      // Dynamic margin based on image width
-      double margin = image.width * marginPercentage;
-      // Estimate average character width
-      double estimatedCharWidth = fontSize * 0.45;
-      // Estimate text width
-      double textWidth = estimatedCharWidth * text.length;
-      // Default for left alignment
-      double x = margin;
-      double subtractionFactor = fontSize * 1.5;
-      // Bottom position with margin
-      double y = image.height - subtractionFactor;
-
-      if (position == TextPosition.bottomCenter) {
-        x = (image.width / 2) - (textWidth / 1.8); // Center alignment
-      } //
-      else if (position == TextPosition.bottomRight) {
-        x = image.width -
-            textWidth -
-            margin * 3; // Right alignment, also consider margin
-      }
-      // Clamp x value to ensure it's within the image boundaries
-      x = x.clamp(0.0, image.width.toDouble() - textWidth);
-      print('Text position: $position, Offset: ($x, $y)');
-      return Offset(x, y);
-    } //
-    else {
+    if (image == null) {
       throw Exception('Unable to decode image');
     }
+    double marginPercentage = 0.03;
+    double margin = image.width * marginPercentage;
+    double adjustmentFactor = getAdjustmentFactor(fontFamily);
+    // Estimate text width using the adjustment factor
+    double estimatedCharWidth = fontSize * 0.45 * adjustmentFactor;
+    double textWidth = estimatedCharWidth * text.length;
+    double x = margin;
+    double subtractionFactor = fontSize * 1.5;
+    double y = image.height - subtractionFactor;
+    if (position == TextPosition.bottomCenter) {
+      x = (image.width / 2) - (textWidth / 2);
+    } //
+    else if (position == TextPosition.bottomRight) {
+      x = image.width - textWidth - margin - (image.width * 0.02);
+    }
+    x = x.clamp(0.0, image.width - textWidth);
+    return Offset(x, y);
   } //
   catch (e) {
-    print(' Error in calculateOffsetBasedOnPosition ${e.toString()}');
+    print('Error in calculateOffsetBasedOnPosition: ${e.toString()}');
     return const Offset(0, 0);
   }
 }

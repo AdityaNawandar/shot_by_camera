@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shotbycamera/src/utils/app_constants.dart' as appConsts;
+import '../../src/utils/app_constants.dart' as appConsts;
 
 class TextPositionSelectorWidget extends StatelessWidget {
   ///

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shotbycamera/src/utils/app_constants.dart';
-import 'package:shotbycamera/src/widgets/color_picker.dart';
-import 'package:shotbycamera/src/widgets/font_family_selector_widget.dart';
-import 'package:shotbycamera/src/widgets/font_size_selector_widget.dart';
-import 'package:shotbycamera/src/widgets/text_position_selector.dart';
+import '../../src/utils/app_constants.dart';
+import '../../src/widgets/color_picker.dart';
+import '../../src/widgets/font_family_selector_widget.dart';
+import '../../src/widgets/font_size_selector_widget.dart';
+import '../../src/widgets/text_position_selector.dart';
 import '../providers/stamp_text_provider.dart';
 import 'title_text_widget.dart';
 
@@ -62,6 +62,7 @@ class StampTextConfig extends StatelessWidget {
               return FontFamilySelectorWidget(
                 onFontFamilySelected: (newValue) {
                   provider.fontName = newValue;
+                  print("Font Family selected: $newValue");
                 },
               );
             },

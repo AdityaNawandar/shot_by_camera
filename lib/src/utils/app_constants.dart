@@ -6,9 +6,11 @@ class AppConstants {
   static const String defaultFontColorHex = '#FFFF00';
   static const TextPosition defaultTextPosition = TextPosition.bottomLeft;
   static const String defaultTextPositionName = "bottomLeft";
-  static const String defaultText = "Shot By Aditya Nawandar";
+  static const String defaultText = "John Doe";
   static const String defaultDirectoryPath = "/storage/emulated/0/DCIM/Camera";
-  static const String defaultAppFolderName = "ShotBy Camera";
+  static const String appIconPath = 'assets/icons/icon_shotby_johndoe.png';
+  // static const String defaultDirectoryPath = "/storage/emulated/0/Pictures";
+  static const String defaultAppFolderName = "ShotBy - Camera";
   static const String defaultAppFolderPath = "/storage/emulated/0/Pictures";
   static const String defaultFontName = "Roboto";
   static const Color selectedButtonColor = Color.fromARGB(227, 36, 158, 25);
@@ -16,8 +18,8 @@ class AppConstants {
   static final fontSizes = [12, 16, 18, 20, 24];
   static const List<String> availableFonts = [
     'Roboto',
-    'DancingScript',
-    'Exo2',
+    'Dancing Script Regular',
+    'Exo 2 Italic',
     // Add your font names here
   ];
   static const Map<int, String> fontSizeLabels = {
@@ -49,7 +51,6 @@ TextPosition getTextPositionFromString(String positionString) {
       return TextPosition.bottomRight;
     default:
       // Return a default value or throw an exception if the string doesn't match any enum value
-      return TextPosition
-          .bottomCenter; // Or throw Exception('Invalid text position string: $positionString');
+      return TextPosition.bottomLeft;
   }
 }
